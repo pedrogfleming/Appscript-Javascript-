@@ -1,0 +1,72 @@
+function sendMails() 
+{
+  var app = SpreadsheetApp;
+  var targetSheet = app.getActiveSpreadsheet().getSheetByName("hoja 1"); //SHEET ORIGEN  
+  var mailsLeft = MailApp.getRemainingDailyQuota();
+  var lastRowSheet = targetSheet.getLastRow();
+  //Logger.log(mailsLeft);
+  var flag = 0;
+  if((lastRowSheet-1) > mailsLeft)
+  {
+    Browser.msgBox(mailsLeft+" mails restantes");
+  }
+  else
+  {
+    var mailsArray = ["aaa"];       //Declaro el array e inicializo el array
+    mailsArray.pop();             //Lo limpio    
+    var currentTitle = targetSheet.getRange("I1:I1").getValue();            //ASUNTO MAIL
+    var currentMessage = targetSheet.getRange("I2:I2").getValue();          //CUERPO DEL MAIL INCLUYE GOOGLE FORM
+    for(var i=2;i<=lastRowSheet;i++)
+      {
+        var currentScore = targetSheet.getRange(i,4).getValue();        //OBTENGO LA NOTA       
+        var currentEmail = targetSheet.getRange(i,5).getValue();        //REVISAR LAS COLUMNAS SIEMPRE
+        if(currentScore < 10)
+        {
+          mailsArray.push(currentEmail);
+          flag = 1;                                                   //Flag para saber si hay desaprobados
+        }        
+      }//FIN FOR 
+                            // Uno todos los elementos del array separados por comas
+      //MailApp.sendEmail(mergedEmails,currentTitle,currentMessage,{name: 'Automatic Emailer Script',cc:'supervisor@ar.g4s.com',bcc:mergedEmails}); 
+            //(MAIL DEL SUPERVISOR       ,ASUNTO       ,MENSAJE DEL MAIL,      ACLARACION DE QUE ES MAIL AUTOMATICO, CON COPIA A... 
+
+      var inactivosSheet = app.getActiveSpreadsheet().getSheetByName("inactivos");
+      var columnToCheckInactivos = inactivosSheet.getRange("A:A").getValues();
+      var lastRowInactivos = getLastRowSpecial(columnToCheckInactivos);
+      var mailsInactivos = [];
+      var totalInactivos = 0;
+      for(var i=0;i<=lastRowInactivos;i++)
+      {        
+        mailsInactivos[i] = inactivosSheet.getRange(i+1,1).getValue();
+        if(mailsInactivos[i])    //Si tiene mail cargado esa celda, entonces se guarda en el array el mail
+        {
+          mailsArray.push(mailsInactivos[i]);
+          totalInactivos++;
+        }        
+      }
+      if(flag == 1 || totalInactivos > 0)       //Se mandará el mail si hay desaprobados o si hay quienes no respondieron el google form
+      {        
+        var mergedEmails = mailsArray.join(",");
+        MailApp.sendEmail("pedro.fleming@ar.g4s.com",currentTitle,currentMessage,{name: 'Automatic Emailer Script',cc:mergedEmails}); 
+      }
+  }  
+}
+
+function getLastRowSpecial(range)
+{
+  var rowNum = 0;
+  var blank = false;
+  for(var row = 0; row < range.length; row++)
+  { 
+    if(range[row][0] === "" && !blank)
+    {
+      rowNum = row;
+      blank = true;
+ 
+    }else if(range[row][0] !== "")
+    {
+      blank = false;
+    }
+  }
+  return rowNum;
+}
