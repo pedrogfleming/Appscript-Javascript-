@@ -1,0 +1,17 @@
+function goToLastRow() 
+{
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getActiveSheet();
+  /*
+  const UFila = lastRowSearch(1);
+  sheet.setActiveSelection(UFila);
+  */
+  sheet.getRange(sheet.getLastRow(),1).activate();
+}
+function initMenu()
+{
+  var ui = SpreadsheetApp.getUi();
+  var menu = ui.createMenu("ACCESO RAPIDO");
+  menu.addItem("Ir a la Ultima fila","goToLastRow");
+  menu.addToUi();
+}
