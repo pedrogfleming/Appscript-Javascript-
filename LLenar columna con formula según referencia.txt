@@ -1,0 +1,9 @@
+
+function fillDownFormula() 
+{
+  var app = SpreadsheetApp;
+  var targetSheet = app.getActiveSpreadsheet().getSheetByName("hoja 1"); //SHEET ORIGEN
+  var endRow = targetSheet.getLastRow();
+  var fillDownRange = targetSheet.getRange(2,4,endRow-1);   //1° param: fila objetivo, 2° param columna objetivo ,3° param, ignoro las filas anteriores a mi celda objetivo   
+  targetSheet.getRange("D2").copyTo(fillDownRange);         //Copio la formula en el rango deseado, hasta la ultima fila escrita de la hoja
+}
