@@ -1,0 +1,63 @@
+function send_mailsInactivosComs() 
+{
+  
+  var ssOriginID = "1vQa8iB6B9bib7_xf1aKkBFTGhiJ8A_75Q-WHCO5ULtA";  
+  var sheetOriginName = "nombreSheet";   
+  var sheetDestinyName = "inactivos";
+  var ssDestinyID = "1vlaOw6zC-2nV24lT4CE8mcj-T4MOsSnQ6U2OR9FJ0vY";  
+
+  var ssOrigin = SpreadsheetApp.openById(ssOriginID)
+  var sheetOrigin = ssOrigin.getSheetByName(sheetOriginName);
+  var columnToCheck = sheetOrigin.getRange("A:A").getValues();      //Uso la columna de mails
+  var lastRow = getLastRowSpecial(columnToCheck);                   //Este es mi A:numero, mi ultimo guardia en el listado  //
+  var lastColumn = sheetOrigin.getLastColumn();
+  var dataRangeOrigin = sheetOrigin.getRange(1,1, lastRow, lastColumn);
+  var dataValues = dataRangeOrigin.getValues();
+  var mailsArray = [];
+  var flag = 0;
+  for(var i=8;i < lastRow;i++)                       //Mis datos arrancan en la fila 8 de mi sheet
+  {    
+    var email = dataValues[i][0];   //[][nro columna:A=0,B=1,C=2...]
+    if (typeof email === "undefined")       //Si llegó al final de la lista de mails
+    {    
+      break;
+    } 
+    else
+    {
+      if(email == "NULL")
+      {
+        continue;
+      }
+      else
+      {
+        if((!dataValues[i][10]))       //Si la celda de notas está vacía, entonces  no lo completo el google form
+        {
+          mailsArray.push(email);
+          flag = 1; 
+        }
+        else
+        {
+          var legajo = dataValues[i][3];
+        }
+      }
+    }
+}//FIN FOR
+
+if(flag == 1)       //Si hay mails cargados en el array
+{  
+  var ssDestiny = SpreadsheetApp.openById(ssDestinyID);           //Google sheet destino
+  var sheetDestiny = ssDestiny.getSheetByName(sheetDestinyName);  //Sheet destino por nombre
+  sheetDestiny.getRange("A1:A").clear();                          //Limpio la columna de mails antes de pegar el array de mails  
+  for(var i=0;i<mailsArray.length;i++)
+  {
+    sheetDestiny.getRange(i+1,1).setValue(mailsArray[i]);	 //Pego los mails en una googleSheet destino	
+  }
+}
+  //Mando entonces esta informacion por gmail
+  /*GmailApp.sendEmail(email,
+  "Test-01",
+  "Hola "+nombre+":\n\nSu nota al google form es de "+nota+". Deberá realizar nuevamente el   exámen:\n\n"+googleForm+"\n\nEquipo Capacitación G4S Argentina");          
+
+      //Logger.log(legajo); 
+    */   
+}//FIN send_mailsInactivos
