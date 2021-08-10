@@ -53,6 +53,12 @@ if(flag == 1)       //Si hay mails cargados en el array
     sheetDestiny.getRange(i+1,1).setValue(mailsArray[i]);	 //Pego los mails en una googleSheet destino	
   }
 }
+else    //SÓLO CUANDO SE ALCANZO EL 100% DE APROBADOS
+{
+  var ssDestiny = SpreadsheetApp.openById(ssDestinyID);           //Google sheet destino
+  var sheetDestiny = ssDestiny.getSheetByName(sheetDestinyName);  //Sheet destino por nombre
+  sheetDestiny.getRange("A1:A").clear();                          //Limpio la columna de mails antes de pegar el array de mails 
+}
   //Mando entonces esta informacion por gmail
   /*GmailApp.sendEmail(email,
   "Test-01",
