@@ -1,0 +1,73 @@
+function sortByDate() 
+{
+  
+  var ssOriginID = SpreadsheetApp.getActiveSpreadsheet();  
+  var sheetOriginName = ssOriginID.getSheetByName("formula"); 
+  //Elijo la columa que va a ser chequeada por la primera celda blanca
+  var columnToCheck = sheetOriginName.getRange("L:L").getValues();      //Uso la columna de fechas 
+  //Obtengo la ultima fila basandome en el rango de data de una sola columna
+  var lastRow = getLastRowSpecial(columnToCheck);
+  //Obtengo el rango de la data basado en el rango de las columnas seleccionadas
+  var lastColumn = sheetOriginName.getLastColumn();
+  var dataRangeOrigin = sheetOriginName.getRange(1,12, lastRow, lastColumn);
+  var dataValues = dataRangeOrigin.getValues();
+  var dniArray = [];
+  var fechaArray = [];
+  var flag = 0;
+  for(var i=2;i < lastRow;i++)                       //Mis datos arrancan en la fila 2 de mi sheet
+  {    
+    var dni = dataValues[i][12];   //[][nro columna:A=0,B=1,C=2...]
+    var fecha = dataValues[i][13]; 
+    if (typeof dni === "undefined")       //Si llegó al final de la lista de  dnis termina
+    {    
+      break;
+    } 
+    else
+    {
+      if(isBlank(dataValues[i][13]))
+      {
+        continue;
+      }
+      else
+      {
+        if((!dataValues[i][13]))       
+        {
+          dniArray.push(dni);
+          fechaArray.push(fecha);
+          flag = 1; 
+        }
+        else
+        {
+          //var legajo = dataValues[i][5];
+        }
+      }
+    }
+}//FIN FOR
+//Limpio las columnas enteras para después agregar actualizadas las fechas nuevas
+sheetOriginName.getRange("D1:D").clear();
+sheetOriginName.getRange("E1:E").clear();
+for(var i=0;i<dniArray.length;i++)
+{
+  sheetOriginName.getRange(i+1,4).setValue(dniArray[i]);
+  sheetOriginName.getRange(i+1,5).setValue(fechaArray[i]);
+}
+}//FIN send_mailsInactivos
+
+function getLastRowSpecial(range)
+{
+  var rowNum = 0;
+  var blank = false;
+  for(var row = 0; row < range.length; row++)
+  { 
+    if(range[row][0] === "" && !blank)
+    {
+      rowNum = row;
+      blank = true;
+ 
+    }else if(range[row][0] !== "")
+    {
+      blank = false;
+    }
+  }
+  return rowNum;
+}
