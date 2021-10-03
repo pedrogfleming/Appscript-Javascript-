@@ -1,0 +1,36 @@
+function deleteAnswer_Criteria()
+{
+  form = FormApp.getActiveForm();
+  var formResponses = form.getResponses();
+
+  // If there aren't submitted responses, exit.
+  if(formResponses.length == 0) return 'No responses';
+
+  // Initialize output
+  var output = [];
+
+  for(var i = 0; i < formResponses.length ; i++)
+  {
+    var itemResponses = formResponses[i].getGradableItemResponses();
+
+    // Initialize scores array. Later it will be used to calculate the score average.
+    var scores = [];
+    for(var j = 0; j < itemResponses.length; j++)
+    {
+      var score = itemResponses[j].getScore();
+      scores.push(score);
+    }
+
+    // Average calculation. Reference https://stackoverflow.com/a/10624256/1595451
+    //Calculates the score of each answer for  each user
+    var sum = scores.reduce(function(a, b) { return a + b; });
+    //var avg = sum / scores.length;
+	//Criteria to delete
+    if(sum < 7)
+    {
+        FormApp.getActiveForm().deleteResponse(formResponses[i].getId());
+    }
+  }
+
+  return output;
+}
