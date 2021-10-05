@@ -1,0 +1,108 @@
+function deleteAnswer_Criteria()
+{
+  form = FormApp.getActiveForm();
+  var formResponses = form.getResponses();
+  
+  // If there aren't submitted responses, exit.
+  if(formResponses.length == 0) return 'No responses';
+
+  // Initialize output
+  var output = [];
+  //var arrayLegajo = new Array(formResponses.length);
+  var arrayLegajo = [];
+  //var arrayID = new Array(formResponses.length);
+  var arrayID = [];
+
+  for(var i = 0; i < formResponses.length ; i++)
+  {
+    var itemResponses = formResponses[i].getGradableItemResponses();
+    var legajo = getLegajo(itemResponses);
+    arrayLegajo.push(legajo);
+    arrayID.push(formResponses[i].getId());    
+  }
+  Logger.log(arrayLegajo);
+  for(var i = 0; i < formResponses.length ; i++)
+  {
+    var itemResponses = formResponses[i].getGradableItemResponses();
+    var legajo = getLegajo(itemResponses);
+    //arrayLegajo.push(legajo);
+    var nombre = getNombre(itemResponses);
+    var sum = calculateIndividualScore(itemResponses);
+    var auxOldResponseId = formResponses[i].getId();
+    if(sum < 7)
+    {
+        FormApp.getActiveForm().deleteResponse(auxOldResponseId);   
+    }    
+    else
+    { 
+      //Si el legajo o el nombre es el mismo ,entonces si chequeo la nota          
+      {        
+        for(var k = i; k < formResponses.length-1 ; k++)
+        {
+          ///i es 111 su legajo
+          if(legajo == arrayLegajo[k+1])
+          {
+              var auxItemResponses = formResponses[k+1].getGradableItemResponses();
+              var auxSum = calculateIndividualScore(auxItemResponses);
+              if(sum > auxSum)
+              {
+                FormApp.getActiveForm().deleteResponse(formResponses[k+1].getId());
+                arrayID.splice(arrayID[k+1],1);
+                arrayLegajo.splice(arrayLegajo[k+1],1);
+                //FormApp.getActiveForm().deleteResponse(formResponses[k+1].getId());
+              }
+              else if(sum < auxSum)
+              {
+                  FormApp.getActiveForm().deleteResponse(auxOldResponseId);
+                  arrayID.splice(arrayID[i],1);
+                  arrayLegajo.splice(arrayLegajo[i],1);
+              }
+              else if(sum == auxSum)
+              {
+                //Si son iguales, elimino la respuesta mas vieja
+                FormApp.getActiveForm().deleteResponse(auxOldResponseId);
+                arrayID.splice(arrayID[i],1);
+                arrayLegajo.splice(arrayLegajo[i],1);
+              }  
+          }
+          else
+          {
+            continue;
+          }
+        }
+      }      
+      //Recorro el resto de las respuestas buscando otra respuesta del mismo usuario      
+    }       
+    
+  }//Fin for
+  return output;
+}
+function getNombre(itemResponses)
+{
+    var auxItemResponse = itemResponses[0];
+    var auxItem = auxItemResponse.getItem();
+    var nombre =  auxItemResponse.getResponse();
+    return nombre;    
+}
+function getLegajo(itemResponses)
+{
+    var auxItemResponse = itemResponses[1];
+    var auxItem = auxItemResponse.getItem();
+    var legajo =  auxItemResponse.getResponse();
+    return legajo;    
+}
+function calculateIndividualScore(itemResponses)
+{
+    // Initialize scores array. Later it will be used to calculate the score average.
+    var scores = [];
+    for(var j = 0; j < itemResponses.length; j++)
+    {
+      var scoreIndividual = itemResponses[j].getScore();
+      scores.push(scoreIndividual);
+    }
+    // Average calculation. Reference https://stackoverflow.com/a/10624256/1595451
+    //Calcula el resultado de cada usuario en cada respuesta
+    var sum = scores.reduce(function(a, b) { return a + b; });
+    return sum;
+}
+
