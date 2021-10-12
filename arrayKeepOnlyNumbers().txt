@@ -1,0 +1,31 @@
+
+/**
+ * Return only the numbre from a variable 
+ * @param arg1 is the data to filter the alphabetical characters
+ * @customFunction * 
+ */
+function ARRAYCLEANER(arg1) 
+{
+  var auxLp = [];
+  var j = 0;
+  for(var i=0;i< arg1.length;i++)
+  {    
+    if(!isNaN(arg1[i]) && arg1[i] != ' ')
+    {
+        if(j == 0)
+        {
+          auxLp = arg1[i];
+        }
+        else
+        {
+          auxLp += arg1[i];
+        }
+        j++;
+    }    
+  }
+  if(j > 0)
+  {    
+    return auxLp;
+  }
+  return arg1;
+}
